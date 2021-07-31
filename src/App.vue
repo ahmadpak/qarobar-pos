@@ -31,6 +31,7 @@
 </template>
 
 <script>
+import { ipcRenderer } from "electron";
 export default {
   data: () => ({
     drawer: false,
@@ -40,6 +41,10 @@ export default {
       show: false,
     },
   }),
-  mounted: function () {},
+  mounted: function () {
+    ipcRenderer.on("auth-reply", (event, args) => {
+      console.log(args);
+    });
+  },
 };
 </script>

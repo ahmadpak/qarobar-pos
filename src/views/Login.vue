@@ -75,7 +75,7 @@
 </template>
 
 <script>
-import axios from "../plugins/axios";
+import { ipcRenderer } from "electron";
 export default {
   data() {
     return {
@@ -95,12 +95,11 @@ export default {
     },
     login() {
       this.loading = true;
-      axios
-        .post("/method/login", JSON.stringify(this.auth))
-        .then(function (response) {
-          console.log(response);
-          this.loading = false;
-        });
+      console.log(this.auth);
+      ipcRenderer.send("login", this.auth);
+      setTimeout(() => {
+        this.loading = false;
+      }, 3000);
     },
   },
   computed: {

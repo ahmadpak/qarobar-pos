@@ -32,6 +32,7 @@
 
 <script>
 import { ipcRenderer } from "electron";
+import store from "./store/index";
 export default {
   data: () => ({
     drawer: false,
@@ -42,6 +43,7 @@ export default {
     },
   }),
   mounted: function () {
+    console.log("store:", store.state);
     ipcRenderer.on("auth-reply", (event, args) => {
       console.log(args);
     });

@@ -75,7 +75,7 @@
 </template>
 
 <script>
-import { ipcRenderer } from "electron";
+import { ipcRenderer } from 'electron'
 export default {
   data() {
     return {
@@ -83,34 +83,34 @@ export default {
       loggedIn: false,
       showPassword: true,
       auth: {
-        usr: "",
-        pwd: "",
-      },
-    };
+        usr: '',
+        pwd: ''
+      }
+    }
   },
   mounted: function () {},
   methods: {
     togglePassword() {
-      this.showPassword = !this.showPassword;
+      this.showPassword = !this.showPassword
     },
     login() {
-      this.loading = true;
-      console.log(this.auth);
-      ipcRenderer.send("login", this.auth);
+      this.loading = true
+      console.log(this.auth)
+      ipcRenderer.send('login', this.auth)
       setTimeout(() => {
-        this.loading = false;
-      }, 3000);
-    },
+        this.loading = false
+      }, 3000)
+    }
   },
   computed: {
     loginBtnCLass() {
-      return this.loading ? "rounded-pill mx-auto" : "rounded-lg mx-auto";
+      return this.loading ? 'rounded-pill mx-auto' : 'rounded-lg mx-auto'
     },
     loginBtnBlock() {
-      return this.loading ? false : true;
-    },
-  },
-};
+      return this.loading ? false : true
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped></style>

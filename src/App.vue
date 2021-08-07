@@ -31,22 +31,22 @@
 </template>
 
 <script>
-import { ipcRenderer } from "electron";
-import store from "./store/index";
+import { ipcRenderer } from 'electron'
+import store from './store/index'
 export default {
   data: () => ({
     drawer: false,
     snackbar: {
-      message: "",
-      color: "",
-      show: false,
-    },
+      message: '',
+      color: '',
+      show: false
+    }
   }),
   mounted: function () {
-    console.log("store:", store.state);
-    ipcRenderer.on("auth-reply", (event, args) => {
-      console.log(args);
-    });
-  },
-};
+    console.log('store:', store.state)
+    ipcRenderer.on('auth-reply', (event, args) => {
+      console.log(args)
+    })
+  }
+}
 </script>

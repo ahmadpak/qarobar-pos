@@ -1,5 +1,5 @@
 export default {
-  SetLoggedIn: "setLoggedIn",
-  SetLastErrorMsg: "setLastErrorMsg",
-  SetLastMsg: "setLastMsg",
-};
+  SetLoggedIn: 'setLoggedIn',
+  SetLastErrorMsg: 'setLastErrorMsg',
+  SetLastMsg: 'setLastMsg'
+}

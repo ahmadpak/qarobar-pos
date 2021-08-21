@@ -1,6 +1,6 @@
 <template>
   <v-app id="inspire">
-    <v-navigation-drawer v-model="drawer" app>
+    <v-navigation-drawer v-model="drawer" app disable-resize-watcher>
       <!--  -->
     </v-navigation-drawer>
 
@@ -11,6 +11,13 @@
 
       <v-toolbar-title>QPOS</v-toolbar-title>
       <v-spacer></v-spacer>
+
+      <v-btn text icon color="primary" class="ma-2">
+        <v-icon>mdi-logout</v-icon></v-btn
+      >
+      <v-btn icon text
+        ><v-icon color="green">mdi-checkbox-marked-circle</v-icon></v-btn
+      >
     </v-app-bar>
 
     <v-main>

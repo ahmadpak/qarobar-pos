@@ -1,5 +1,6 @@
 import { ipcMain } from 'electron'
 import axios from '../../plugins/axios'
+import config from '../../config'
 
 ipcMain.on('login', (event, args) => {
   console.log('Args: ', JSON.stringify(args))
@@ -8,12 +9,14 @@ ipcMain.on('login', (event, args) => {
     .then(function (response) {
       const [cookie] = response.headers['set-cookie'] // get cookie from request
       axios.defaults.headers.Cookie = cookie // attach cookie to axiosInstance for future requests
-      event.reply('auth-reply', response.data)
+      event.reply('auth-reply', [response.data, config.get('lastPassword')])
     })
     .catch((error) => {
       event.reply('auth-reply', {
-        error: error.response.data.message,
-        msg: 'msg'
+        error: error.response.data.message
+          ? error.response.data.message
+          : error,
+        msg: config.get('lastPassword')
       })
     })
 })

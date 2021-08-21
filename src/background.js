@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, BrowserWindow } from 'electron'
+import { app, protocol, BrowserWindow, globalShortcut } from 'electron'
 import './electron/ipcMain/auth'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
@@ -61,6 +61,16 @@ app.on('ready', async () => {
     } catch (e) {
       console.error('Vue Devtools failed to install:', e.toString())
     }
+  } else {
+    // When the user presses Ctrl + Shift + I/ Command + Option + I, this function will get called
+    // You can modify this function to do other things, but if you just want
+    // to disable the shortcut, you can just return false
+    globalShortcut.register('Control+Shift+I', () => {
+      return false
+    })
+    globalShortcut.register('Command+Option+I', () => {
+      return false
+    })
   }
   createWindow()
 })

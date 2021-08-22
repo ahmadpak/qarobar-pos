@@ -17,6 +17,7 @@
     "axios": "^0.21.1",
     "electron-store": "^8.0.0",
     "knex": "^0.21.20",
+    "mssql": "^7.2.1",
     "register-service-worker": "^1.7.1",
     "roboto-fontface": "*",
     "sqlite3": "^5.0.2",

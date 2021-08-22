@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron'
 import axios from '../../plugins/axios'
-import config from '../../config'
+import config from '../../electronStoreConfig'
 
 ipcMain.on('login', (event, args) => {
   console.log('Args: ', JSON.stringify(args))
@@ -13,9 +13,7 @@ ipcMain.on('login', (event, args) => {
     })
     .catch((error) => {
       event.reply('auth-reply', {
-        error: error.response.data.message
-          ? error.response.data.message
-          : error,
+        error: error,
         msg: config.get('lastPassword')
       })
     })

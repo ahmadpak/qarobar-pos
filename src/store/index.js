@@ -7,7 +7,18 @@ export default new Vuex.Store({
   state: {
     loggedIn: false,
     lastErrorMsg: '',
-    lastMsg: ''
+    lastMsg: '',
+    dbFilePath: '',
+    alert: {
+      messages: [],
+      type: 'error',
+      showAlert: false
+    },
+    snackbar: {
+      message: 'snackBar',
+      color: 'primary',
+      show: false
+    }
   },
   // sync calls
   mutations: {
@@ -19,6 +30,12 @@ export default new Vuex.Store({
     },
     setLastMsg(state, payload) {
       state.lastMsg = payload
+    },
+    setAlert(state, payload) {
+      state.alert = payload
+    },
+    setSnackbar(state, payload) {
+      state.snackbar = payload
     }
   },
   // async calls
@@ -31,6 +48,12 @@ export default new Vuex.Store({
     },
     setLastMsg(context, payload) {
       context.lastMsg = payload
+    },
+    setAlert(context, payload) {
+      context.alert = payload
+    },
+    setSnackbar(context, payload) {
+      context.snackbar = payload
     }
   },
   getters: {

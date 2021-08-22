@@ -34,26 +34,35 @@
     >
       {{ snackbar.message }}
     </v-snackbar>
+    <div class="d-flex align-end flex-column">
+      <v-alert
+        v-for="(message, idx) in alert.messages"
+        :key="idx"
+        dense
+        dismissible
+        text
+        max-width="300px"
+        min-width="300px"
+        transition="scroll-x-transition"
+        :type="alert.type"
+        :value="alert.showAlert"
+        >{{ message }}</v-alert
+      >
+    </div>
   </v-app>
 </template>
 
 <script>
-import { ipcRenderer } from 'electron'
-import store from './store/index'
+import { mapState } from 'vuex'
+
 export default {
   data: () => ({
-    drawer: false,
-    snackbar: {
-      message: '',
-      color: '',
-      show: false
-    }
+    drawer: false
   }),
-  mounted: function () {
-    console.log('store:', store.state)
-    ipcRenderer.on('auth-reply', (event, args) => {
-      console.log(args)
-    })
-  }
+  mounted: function () {},
+  computed: mapState({
+    alert: 'alert',
+    snackbar: 'snackbar'
+  })
 }
 </script>

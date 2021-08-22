@@ -1,7 +1,14 @@
 'use strict'
 
-import { app, protocol, BrowserWindow, globalShortcut } from 'electron'
-import './electron/ipcMain/auth'
+import {
+  app,
+  protocol,
+  BrowserWindow,
+  globalShortcut,
+  dialog,
+  ipcMain
+} from 'electron'
+import './electron/ipcMain/frappeAuth'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -14,14 +21,18 @@ protocol.registerSchemesAsPrivileged([
 async function createWindow() {
   // Create the browser window.
   const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1200,
+    height: 800,
+    show: false,
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
       contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
     }
+  })
+  win.once('ready-to-show', () => {
+    win.show()
   })
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -89,3 +100,25 @@ if (isDevelopment) {
     })
   }
 }
+
+ipcMain.on('openDirectorySelector', (event) => {
+  dialog
+    .showOpenDialog({ properties: ['openDirectory', 'createDirectory'] })
+    .then((r) => {
+      if (r.canceled == true) {
+        event.reply('selectedDirectory', null)
+      } else {
+        event.reply('selectedDirectory', r.filePaths[0])
+      }
+    })
+})
+
+ipcMain.on('openFileSelector', (event) => {
+  dialog.showOpenDialog({ properties: ['openFile'] }).then((r) => {
+    if (r.canceled == true) {
+      event.reply('selectedFile', null)
+    } else {
+      event.reply('selectedFile', r.filePaths[0])
+    }
+  })
+})

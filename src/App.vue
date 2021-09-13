@@ -16,7 +16,9 @@
         <v-icon>mdi-logout</v-icon></v-btn
       >
       <v-btn icon text
-        ><v-icon color="green">mdi-checkbox-marked-circle</v-icon></v-btn
+        ><v-icon :color="connectivity ? 'green' : 'red'"
+          >mdi-checkbox-marked-circle</v-icon
+        ></v-btn
       >
     </v-app-bar>
 
@@ -24,29 +26,25 @@
       <router-view />
     </v-main>
     <v-snackbar
-      :timeout="2000"
+      :timeout="snackbar.timeout"
       v-model="snackbar.show"
       app
       absolute
       center
-      color="secondary"
+      :color="snackbar.color"
       elevation="24"
     >
       {{ snackbar.message }}
     </v-snackbar>
-    <div class="d-flex align-end flex-column">
+    <div class="alert">
       <v-alert
-        v-for="(message, idx) in alert.messages"
-        :key="idx"
-        dense
-        dismissible
-        text
+        v-for="(row, idx) in alert"
         max-width="300px"
         min-width="300px"
-        transition="scroll-x-transition"
-        :type="alert.type"
-        :value="alert.showAlert"
-        >{{ message }}</v-alert
+        :key="idx"
+        :type="row.type"
+        :value="row.showAlert"
+        >{{ row.message }}</v-alert
       >
     </div>
   </v-app>
@@ -60,9 +58,22 @@ export default {
     drawer: false
   }),
   mounted: function () {},
-  computed: mapState({
-    alert: 'alert',
-    snackbar: 'snackbar'
-  })
+  computed: {
+    ...mapState({
+      alert: 'alert',
+      snackbar: 'snackbar',
+      connectivity: 'connectivity'
+    })
+  }
 }
 </script>
+<style scoped>
+.alert {
+  /* d-flex align-end flex-column */
+  position: absolute;
+  right: 5px;
+  bottom: 0;
+  max-height: 90vh;
+  overflow-y: scroll;
+}
+</style>

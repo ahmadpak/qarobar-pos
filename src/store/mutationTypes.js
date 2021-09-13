@@ -1,6 +1,2 @@
-export default {
-  SetLoggedIn: 'setLoggedIn',
-  SetLastErrorMsg: 'setLastErrorMsg',
-  SetLastMsg: 'setLastMsg',
-  setAlert: 'setAlert'
-}
+export const SET_CONNECTIVITY = 'SET_CONNECTIVITY'
+export const SET_SNACKBAR = 'SET_SNACKBAR'

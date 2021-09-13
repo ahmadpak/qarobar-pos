@@ -1,70 +1,111 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import { SET_CONNECTIVITY, SET_SNACKBAR } from './mutationTypes'
+import { SET_ALERT, SET_ERROR } from './actionTypes'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    loggedIn: false,
-    lastErrorMsg: '',
-    lastMsg: '',
+    connectivity: false,
     dbFilePath: '',
-    alert: {
-      messages: [],
-      type: 'error',
-      showAlert: false
-    },
+    alert: [],
     snackbar: {
       message: 'snackBar',
       color: 'primary',
+      timeout: 3000,
       show: false
     }
   },
   // sync calls
   mutations: {
-    setLoggedIn(state, payload) {
-      state.loggedIn = payload
+    [SET_ALERT](state, payload) {
+      /*
+      In string form
+      payload = 'Some message'
+
+      As an object
+      payload = {
+        message : 'Some Message',
+        type: 'error',
+      }
+       */
+      if (typeof payload === 'string') {
+        state.alert.push({
+          message: payload,
+          type: 'success',
+          showAlert: true
+        })
+      } else {
+        state.alert.push({
+          message: payload.message ? payload.message : 'Invalid Format',
+          type: payload.type ? payload.type : 'success',
+          showAlert: true
+        })
+      }
     },
-    setLastErrorMsg(state, payload) {
-      state.lastErrorMsg = payload
+    [SET_SNACKBAR](state, payload) {
+      /*
+    As String
+    payload = 'some message'
+    As an object
+    payload = {
+      message: "some message",
+      color: "#hexCode" or primary|secondary
+      }
+    */
+      state.snackbar = {
+        message: payload.message ? payload.message : payload,
+        timeout: payload.timeout ? payload.timeout : 3000,
+        color: payload.color ? payload.color : 'primary',
+        show: true
+      }
     },
-    setLastMsg(state, payload) {
-      state.lastMsg = payload
-    },
-    setAlert(state, payload) {
-      state.alert = payload
-    },
-    setSnackbar(state, payload) {
-      state.snackbar = payload
+    [SET_CONNECTIVITY](state, payload) {
+      state.connectivity = payload ? true : false
     }
   },
   // async calls
   actions: {
-    setLoggedIn(context, payload) {
-      context.loggedIn = payload
+    [SET_ALERT](context, payload) {
+      /**
+       * In string form
+       * payload = 'hello world'
+       *
+       * In Object form
+       * payload = {
+       *  message: 'Some message',
+       *  type: 'success'
+       * }
+       *
+       * removes the element in the first position after the set timeout
+       */
+      context.commit(SET_ALERT, payload)
+
+      setTimeout(
+        () => {
+          context.state.alert.shift()
+        },
+        payload.timeout ? payload.timeout : 3000
+      )
     },
-    setLastErrorMsg(context, payload) {
-      context.lastErrorMsg = payload
-    },
-    setLastMsg(context, payload) {
-      context.lastMsg = payload
-    },
-    setAlert(context, payload) {
-      context.alert = payload
-    },
-    setSnackbar(context, payload) {
-      context.snackbar = payload
+    [SET_ERROR](context, payload) {
+      context.commit(SET_ALERT, {
+        message: payload,
+        type: 'error'
+      })
+
+      setTimeout(
+        () => {
+          context.state.alert.shift()
+        },
+        payload.timeout ? payload.timeout : 3000
+      )
     }
   },
   getters: {
     getLoggedInStatus(state) {
       return state.loggedIn
-    },
-    getLastErrorMsg(state) {
-      return state.lastErrorMsg
-    },
-    getLastMsg(state) {
-      return state.lastMsg
     }
   },
   modules: {}

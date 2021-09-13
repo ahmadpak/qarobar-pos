@@ -11,23 +11,34 @@
         <v-stepper-step :complete="e1 > 2" step="2">
           Setting database path
         </v-stepper-step>
-
-        <v-divider></v-divider>
-
-        <v-stepper-step step="3"> Setting Frappe Site </v-stepper-step>
       </v-stepper-header>
 
       <v-stepper-items>
         <v-stepper-content step="1">
           <v-card class="mx-auto mb-12 mt-12" flat width="600px" height="300px">
             <v-card-text>
+              <!-- Frappe Site -->
+              <v-text-field
+                prepend-inner-icon="mdi-web"
+                name="baseURL"
+                id="baseURL"
+                placeholder="http://ERPNextSite"
+                v-model="auth.baseURL"
+                single-line
+                filled
+                solo
+                class="rounded-lg"
+                color="green darken-4"
+                background-color="secondary"
+                dark
+              ></v-text-field>
               <!-- User -->
               <v-text-field
                 prepend-inner-icon="mdi-account"
-                name="username"
-                id="username"
-                placeholder="yourSuperUser"
-                v-model="auth.usr"
+                name="api_key"
+                id="api_key"
+                placeholder="API KEY"
+                v-model="auth.api_key"
                 single-line
                 filled
                 solo
@@ -39,28 +50,13 @@
               <!-- Password -->
               <v-text-field
                 prepend-inner-icon="mdi-lock"
-                :append-icon="hidePassword ? 'mdi-eye-off' : 'mdi-eye'"
-                @click:append="togglePassword"
-                name="password"
-                id="password"
-                placeholder="yourSecretPassword"
-                v-model="auth.pwd"
-                :type="hidePassword ? 'password' : 'text'"
-                single-line
-                filled
-                solo
-                class="rounded-lg"
-                color="red"
-              ></v-text-field>
-              <v-text-field
-                prepend-inner-icon="mdi-lock"
-                :append-icon="hideConfirmPassword ? 'mdi-eye-off' : 'mdi-eye'"
-                @click:append="toggleConfirmPassword"
-                name="confirmPassword"
-                id="confirmPassword"
-                placeholder="confirmYourSecretPassword"
-                v-model="auth.confirmPassword"
-                :type="hideConfirmPassword ? 'password' : 'text'"
+                :append-icon="hideApiSecret ? 'mdi-eye-off' : 'mdi-eye'"
+                @click:append="toggelApiSecret"
+                name="api_secret"
+                id="api_secret"
+                placeholder="API SECRET"
+                v-model="auth.api_secret"
+                :type="hideApiSecret ? 'password' : 'text'"
                 single-line
                 filled
                 solo
@@ -70,9 +66,9 @@
             </v-card-text>
           </v-card>
 
-          <v-btn color="primary" @click="completeStepOne"> Continue </v-btn>
-
-          <v-btn text> Cancel </v-btn>
+          <v-btn color="primary" @click="completeSiteInformation">
+            Continue
+          </v-btn>
         </v-stepper-content>
 
         <v-stepper-content step="2">
@@ -98,33 +94,9 @@
             </v-card-text>
           </v-card>
 
-          <v-btn color="primary" @click="completeStepTwo"> Continue </v-btn>
-
-          <v-btn text> Cancel </v-btn>
-        </v-stepper-content>
-
-        <v-stepper-content step="3">
-          <v-card class="mx-auto mb-12 mt-12" flat width="600px" height="300px">
-            <v-card-text>
-              <!-- Frappe Site -->
-              <v-text-field
-                prepend-inner-icon="mdi-web"
-                name="frappeSiteURL"
-                id="frappeSiteURL"
-                placeholder="http://frappeSiteURL"
-                v-model="auth.frappeSiteURL"
-                single-line
-                filled
-                solo
-                class="rounded-lg"
-                color="green darken-4"
-                background-color="secondary"
-                dark
-              ></v-text-field>
-            </v-card-text>
-          </v-card>
-
-          <v-btn color="primary" @click="completeStepThree"> Finish </v-btn>
+          <v-btn color="primary" @click="completeDatabaseInformation">
+            Complete
+          </v-btn>
         </v-stepper-content>
       </v-stepper-items>
     </v-stepper>
@@ -133,120 +105,154 @@
 
 <script>
 import { ipcRenderer } from 'electron'
+import {
+  LOGIN,
+  LOGIN_RESPONSE,
+  SELECTED_DIRECTORY,
+  SELECTED_FILE,
+  OPEN_DIRECTORY_SELECTOR,
+  OPEN_FILE_SELECTOR
+} from '../electron/ipcEvents'
 import config from '../electronStoreConfig'
 import router from '../router/index'
+import { SET_CONNECTIVITY } from '../store/mutationTypes'
+import { SET_ALERT, SET_ERROR } from '../store/actionTypes'
 
 export default {
   data() {
     return {
       e1: 1,
-      hidePassword: true,
-      hideConfirmPassword: true,
+      hideApiSecret: true,
       auth: {
-        frappeSiteURL: null,
-        usr: '',
-        pwd: '',
-        confirmPassword: ''
+        baseURL: null,
+        api_key: '',
+        api_secret: ''
       },
       dbDirectory: null,
       resotreDB: 0
     }
   },
   methods: {
-    togglePassword() {
-      this.hidePassword = !this.hidePassword
-    },
-    toggleConfirmPassword() {
-      this.hideConfirmPassword = !this.hideConfirmPassword
+    toggelApiSecret() {
+      this.hideApiSecret = !this.hideApiSecret
     },
     selectDirectory() {
-      ipcRenderer.send('openDirectorySelector')
+      ipcRenderer.send(OPEN_DIRECTORY_SELECTOR)
     },
     selectDataBase() {
       this.dbDirectory = ''
-      ipcRenderer.send('openFileSelector')
+      ipcRenderer.send(OPEN_FILE_SELECTOR)
+    },
+    verifySite() {
+      if (this.auth.baseURL && !this.auth.baseURL.includes('http')) {
+        this.auth.baseURL = 'http://' + this.auth.baseURL
+      }
+      return this.auth.baseURL ? true : false
     },
     verifyUser() {
-      if (!this.auth.usr) {
-        return false
-      } else {
-        return true
-      }
+      return this.auth.api_key ? true : false
     },
     verifyPassword() {
-      if (this.auth.pwd !== this.auth.confirmPassword) {
-        return false
-      } else {
-        return true
-      }
+      return this.auth.api_secret ? true : false
     },
-    // Super User
-    completeStepOne() {
+    // Complete Site Information
+    completeSiteInformation() {
+      if (!this.verifySite()) {
+        this.$store.dispatch(SET_ALERT, {
+          message: 'Site Missing',
+          type: 'error'
+        })
+      }
+
       if (!this.verifyUser()) {
-        alert('User Missing!')
-        return
+        this.$store.dispatch(SET_ALERT, {
+          message: 'User Missing',
+          type: 'error'
+        })
       }
 
       if (!this.verifyPassword()) {
-        alert('Passwords Donot Match')
-        return
-      }
-
-      if (this.verifyUser() && this.verifyPassword()) {
-        this.e1 = 2
-      }
-    },
-    // Database Setup
-    completeStepTwo() {
-      if (!this.dbDirectory && !this.resotreDB) {
-        alert('Select database directory!')
-      } else if (!this.dbDirectory && this.resotreDB) {
-        alert('Select database!')
-      } else {
-        this.e1 = 3
-      }
-    },
-    // Site Setup
-    async completeStepThree() {
-      if (!this.auth.frappeSiteURL) {
-        alert('Set Frappe Site!')
-      } else {
-        await this.setElectronConfig()
-
-        const sqlite3 = require('sqlite3')
-        new sqlite3.Database(
-          this.dbDirectory,
-          sqlite3.OPEN_CREATE | sqlite3.OPEN_READWRITE,
-          (err) => {
-            if (err) {
-              console.error(err.message)
-            } else {
-              console.log('Connected to the database.')
-            }
-          }
-        ).close((err) => {
-          if (err) {
-            console.error(err.message)
-          } else {
-            console.log('Close the database connection.')
-          }
-          router.push({ name: 'login' })
+        this.alertMessage = 'Passwords Missing!'
+        this.alert = true
+        this.$store.dispatch(SET_ALERT, {
+          message: 'Password Missing',
+          type: 'error'
         })
       }
+
+      if (this.verifySite() && this.verifyUser() && this.verifyPassword()) {
+        ipcRenderer.send(LOGIN, this.auth)
+      }
     },
-    async setElectronConfig() {
-      config.set('masterUser', this.auth.usr)
-      config.set('masterPassword', this.auth.pwd)
-      config.set('dbFilePath', this.dbDirectory)
-      config.set('frappeSiteURL', this.auth.frappeSiteURL)
+    // Complete Database Information
+    completeDatabaseInformation() {
+      if (!this.dbDirectory && !this.resotreDB) {
+        this.$store.dispatch(SET_ERROR, 'Select database directory')
+      } else if (!this.dbDirectory && this.resotreDB) {
+        this.$store.dispatch(SET_ERROR, 'Select database')
+      } else {
+        this.configureDatabase()
+      }
+    },
+    async configureDatabase() {
+      const sqlite3 = require('sqlite3')
+      let db = new sqlite3.Database(
+        this.dbDirectory,
+        sqlite3.OPEN_CREATE | sqlite3.OPEN_READWRITE,
+        (err) => {
+          if (err) {
+            this.$store.dispatch(SET_ERROR, 'Database setup failed.')
+          }
+        }
+      )
+
+      db.serialize(() => {
+        db.run(
+          'CREATE TABLE tabSiteSettings(key TEXT PRIMARY KEY, value TEXT NOT NULL)'
+        )
+          .run(
+            `INSERT INTO tabSiteSettings(key, value) VALUES("baseURL","${this.auth.baseURL}")`
+          )
+          .run(
+            `INSERT INTO tabSiteSettings(key, value) VALUES("api_key","${this.auth.api_key}")`
+          )
+          .run(
+            `INSERT INTO tabSiteSettings(key, value) VALUES("api_secret","${this.auth.api_secret}")`
+          )
+          .close((err) => {
+            if (err) {
+              this.$store.dispatch(SET_ERROR, 'Database setup failed.')
+            } else {
+              this.$store.dispatch(SET_ALERT, 'Database setup successfull.')
+              config.set('dbFilePath', this.dbDirectory)
+              router.push({ name: 'home' })
+            }
+          })
+      })
     }
   },
   mounted() {
-    ipcRenderer.on('selectedDirectory', (event, args) => {
-      this.dbDirectory = args + '/qpos.db'
+    ipcRenderer.on(SELECTED_DIRECTORY, (event, r) => {
+      this.dbDirectory = r + '/qpos.db'
     })
-    ipcRenderer.on('selectedFile', (event, args) => {
-      this.dbDirectory = args
+    ipcRenderer.on(SELECTED_FILE, (event, r) => {
+      this.dbDirectory = r
+    })
+    ipcRenderer.on(LOGIN_RESPONSE, (event, r) => {
+      if (r.message) {
+        this.$store.commit(SET_CONNECTIVITY, true)
+        this.$store.dispatch(
+          SET_ALERT,
+          `Connevtivity Successfull. Welcome ${r.message}`
+        )
+        this.e1 = 2
+      } else {
+        this.$store.commit(SET_CONNECTIVITY, false)
+        this.$store.dispatch(SET_ALERT, {
+          message: 'Connectivity Failed',
+          type: 'error'
+        })
+      }
     })
   },
   watch: {

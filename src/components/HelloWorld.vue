@@ -74,6 +74,12 @@
 </template>
 
 <script>
+import knex from '../plugins/knex'
+import { SET_CONNECTIVITY } from '../store/mutationTypes'
+// import { SET_ALERT, SET_ERROR } from '../store/actionTypes'
+import { LOGIN, LOGIN_RESPONSE } from '../electron/ipcEvents'
+import { ipcRenderer } from 'electron'
+
 export default {
   name: 'HelloWorld',
 
@@ -128,6 +134,29 @@ export default {
         href: 'https://vuetifyjs.com/getting-started/frequently-asked-questions'
       }
     ]
-  })
+  }),
+  mounted() {
+    knex
+      .select('key', 'value')
+      .from('tabSiteSettings')
+      .then((result) => {
+        let payload = {}
+        result.forEach((row) => {
+          payload[row.key] = row.value
+        })
+        ipcRenderer.on(LOGIN_RESPONSE, (event, r) => {
+          if (r.message) {
+            this.$store.commit(SET_CONNECTIVITY, true)
+            // this.$store.dispatch(SET_ALERT, `Welcome ${r.message}`)
+          } else {
+            // this.$store.dispatch(SET_ERROR, 'Connectivity Failed')
+            this.$store.commit(SET_CONNECTIVITY, false)
+          }
+        })
+        setInterval(() => {
+          ipcRenderer.send(LOGIN, payload)
+        }, 5000)
+      })
+  }
 }
 </script>

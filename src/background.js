@@ -1,14 +1,10 @@
 'use strict'
 
-import {
-  app,
-  protocol,
-  BrowserWindow,
-  globalShortcut,
-  dialog,
-  ipcMain
-} from 'electron'
-import './electron/ipcMain/frappeAuth'
+import { app, protocol, BrowserWindow, globalShortcut } from 'electron'
+
+// Electron IPC Imports
+import './electron/ipcMain/frappe'
+import './electron/ipcMain/db'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -76,12 +72,9 @@ app.on('ready', async () => {
     // When the user presses Ctrl + Shift + I/ Command + Option + I, this function will get called
     // You can modify this function to do other things, but if you just want
     // to disable the shortcut, you can just return false
-    globalShortcut.register('Control+Shift+I', () => {
-      return false
-    })
-    globalShortcut.register('Command+Option+I', () => {
-      return false
-    })
+
+    // Unregister All shortcuts
+    globalShortcut.unregisterAll()
   }
   createWindow()
 })
@@ -100,25 +93,3 @@ if (isDevelopment) {
     })
   }
 }
-
-ipcMain.on('openDirectorySelector', (event) => {
-  dialog
-    .showOpenDialog({ properties: ['openDirectory', 'createDirectory'] })
-    .then((r) => {
-      if (r.canceled == true) {
-        event.reply('selectedDirectory', null)
-      } else {
-        event.reply('selectedDirectory', r.filePaths[0])
-      }
-    })
-})
-
-ipcMain.on('openFileSelector', (event) => {
-  dialog.showOpenDialog({ properties: ['openFile'] }).then((r) => {
-    if (r.canceled == true) {
-      event.reply('selectedFile', null)
-    } else {
-      event.reply('selectedFile', r.filePaths[0])
-    }
-  })
-})

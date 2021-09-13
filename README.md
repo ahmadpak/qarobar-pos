@@ -22,13 +22,12 @@ RoadMAP:
 
 ## Setup Wizard
 
-Three step setup wizard as following:
+Two step setup wizard as following:
 
-1. Setting super user
+1. Setting Up ERPNext Site
 2. Setting database path
-3. Setting ERPNext site (Optional)
 
-The app will save the config in the electron store for future reference. Setup Wizard will only appear of setup 1 and 2 are not set. The use can initate a new DB afterwards or restore an existing one
+The app will create a new sqlite database and save the ERPNext site details for future reference.
 
 ## Project setup
 

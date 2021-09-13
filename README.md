@@ -6,7 +6,19 @@ RoadMAP:
 
 - [x] Configure Vue Router and Vuex
 - [x] Configure axios for nodejs
-- [ ] Configure Setup Wizard, SQLite and Knex
+- [x] Configure Setup Wizard, SQLite and Knex
+- [ ] Create Screens for
+  - [ ] Item
+  - [ ] Item Group
+  - [ ] Warehouse
+  - [ ] Price List
+  - [ ] Item Price
+- [ ] Sync Data with ERPNext for:
+  - [ ] Item
+  - [ ] Item Group
+  - [ ] Warehouse
+  - [ ] Price List
+  - [ ] Item Price
 
 ## Setup Wizard
 
